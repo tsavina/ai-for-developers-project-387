@@ -1,0 +1,32 @@
+name: Scheduled OpenCode Task
+
+on:
+  schedule:
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+    inputs:
+      prompt:
+        description: 'Prompt for the task'
+        required: false
+        default: 'Review the codebase for any TODO comments and create a summary. If you find issues worth addressing, open an issue to track them.'
+      model:
+        description: 'Model to use'
+        required: false
+        default: 'opencode/big-pickle'
+
+jobs:
+  opencode:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Run OpenCode
+        uses: anomalyco/opencode/github@latest
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+        with:
+          model: ${{ inputs.model || 'opencode/big-pickle' }}
+          prompt: ${{ inputs.prompt || 'Review the codebase for any TODO comments and create a summary. If you find issues worth addressing, open an issue to track them.' }}
